@@ -1,0 +1,70 @@
+CREATE TABLE produkt 
+(id_produktu bigserial PRIMARY KEY,
+ nazwa VARCHAR(50) UNIQUE NOT NULL,
+kategoria VARCHAR(50) NOT NULL,
+ilosc SMALLINT NOT NULL,
+cena NUMERIC(7,2) NOT NULL,
+rozmiar VARCHAR(20) NOT NULL,
+polozenie VARCHAR(20) NOT NULL,
+data_modyfikacji timestamp NOT NULL)
+
+
+CREATE TABLE zespol 
+(id_zespolu serial PRIMARY KEY,
+ kierownik VARCHAR(50) NOT NULL,
+zmiana VARCHAR(50) NOT NULL)
+
+
+CREATE TABLE klient 
+(id_klienta bigserial PRIMARY KEY,
+ imie VARCHAR(50) NOT NULL,
+nazwisko VARCHAR(50) NOT NULL,
+email VARCHAR(50) UNIQUE NOT NULL CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'),
+telefon VARCHAR(20) ,
+adres VARCHAR(50) NOT NULL,
+met_platnosci VARCHAR(50) NOT NULL,
+data_utworzenia timestamp NOT NULL)
+
+
+CREATE TABLE pracownik 
+(id_pracownika bigserial PRIMARY KEY,
+ id_zespolu INTEGER REFERENCES zespol (id_zespolu) NOT NULL,
+pozycja VARCHAR(50) NOT NULL,
+imie VARCHAR(50) NOT NULL,
+nazwisko VARCHAR(50) NOT NULL,
+data_utworzenia timestamp NOT NULL)
+
+
+CREATE TABLE koszyk 
+(id_koszyka bigserial PRIMARY KEY,
+ id_klienta INTEGER REFERENCES klient(id_klienta) NOT NULL,
+id_produktu0 INTEGER REFERENCES produkt(id_produktu) NOT NULL,
+ilosc0 SMALLINT NOT NULL,
+id_produktu1 INTEGER REFERENCES produkt(id_produktu),
+ilosc1 SMALLINT,
+id_produktu2 INTEGER REFERENCES produkt(id_produktu),
+ilosc2 SMALLINT,
+id_produktu3 INTEGER REFERENCES produkt(id_produktu),
+ilosc3 SMALLINT,
+id_produktu4 INTEGER REFERENCES produkt(id_produktu),
+ilosc4 SMALLINT,
+id_produktu5 INTEGER REFERENCES produkt(id_produktu),
+ilosc5 SMALLINT,
+id_produktu6 INTEGER REFERENCES produkt(id_produktu),
+ilosc6 SMALLINT,
+id_produktu7 INTEGER REFERENCES produkt(id_produktu),
+ilosc7 SMALLINT,
+id_produktu8 INTEGER REFERENCES produkt(id_produktu),
+ilosc8 SMALLINT,
+id_produktu9 INTEGER REFERENCES produkt(id_produktu),
+ilosc9 SMALLINT,
+warotosc NUMERIC(7,2) NOT NULL )
+
+
+CREATE TABLE zamowienie 
+(id_zamowienia bigserial PRIMARY KEY,
+id_pracownika INTEGER REFERENCES pracownik(id_pracownika) NOT NULL,
+status VARCHAR(20) NOT NULL,
+koment VARCHAR(200),
+data_aktualizacji timestamp NOT NULL,
+data_utworzenia timestamp NOT NULL)
