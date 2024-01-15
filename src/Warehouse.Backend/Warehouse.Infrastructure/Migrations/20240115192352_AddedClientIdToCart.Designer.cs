@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Warehouse.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Warehouse.Infrastructure.Data;
 namespace Warehouse.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20240115192352_AddedClientIdToCart")]
+    partial class AddedClientIdToCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,7 +198,7 @@ namespace Warehouse.Infrastructure.Migrations
             modelBuilder.Entity("Warehouse.Domain.Entities.Cart", b =>
                 {
                     b.HasOne("Warehouse.Domain.Entities.Client", "Client")
-                        .WithMany("Carts")
+                        .WithMany()
                         .HasForeignKey("ClientId");
 
                     b.Navigation("Client");
@@ -226,11 +229,6 @@ namespace Warehouse.Infrastructure.Migrations
                         .HasForeignKey("ManagerId");
 
                     b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Entities.Client", b =>
-                {
-                    b.Navigation("Carts");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.Worker", b =>
