@@ -10,4 +10,5 @@ public class Client
     public string? Address { get; set; }
     public string? PaymentMethod { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public ICollection<Cart> Carts { get; set; } = new List<Cart>();
 }
