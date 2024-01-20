@@ -70,12 +70,8 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseOpenApi();
-    app.UseSwaggerUi3();
-}
+app.UseOpenApi(); 
+app.UseSwaggerUi3();
 
 // apply migrations
 using (var scope = app.Services.CreateScope())
