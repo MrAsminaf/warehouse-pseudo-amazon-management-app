@@ -1,14 +1,11 @@
 namespace Warehouse.Domain.Entities;
 
-public class Client
+public class Client : ApplicationUser
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public string? Surname { get; set; }
-    public string? Email { get; set; }
-    public string? Phone { get; set; }
+    public int? ApplicationUserId { get; set; }
+    public ApplicationUser? ApplicationUser { get; set; }
+    
     public string? Address { get; set; }
     public string? PaymentMethod { get; set; }
-    public DateTime? CreatedAt { get; set; }
     public ICollection<Cart> Carts { get; set; } = new List<Cart>();
 }
