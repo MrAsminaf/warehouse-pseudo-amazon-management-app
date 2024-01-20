@@ -1,12 +1,10 @@
 namespace Warehouse.Domain.Entities;
 
-public class Worker
+public class Worker : ApplicationUser
 {
-    public int? Id { get; set; }
+    public int? ApplicationUserId { get; set; }
+    public ApplicationUser? ApplicationUser { get; set; }
+    
     public ICollection<Team> ManagedTeams { get; set; } = new List<Team>();
     public string? Position { get; set; }
-    public string? Name { get; set; }
-    public string? Surname { get; set; }
-    public string? Email { get; set; }
-    public DateTime? CreatedAt { get; set; }
 }
