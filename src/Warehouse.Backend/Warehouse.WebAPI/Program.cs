@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NSwag;
 using Warehouse.Application;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure;
@@ -52,10 +53,29 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+builder.Services.AddOpenApiDocument(options =>
+{
+    options.PostProcess = document =>
+    {
+        document.Info = new OpenApiInfo()
+        {
+            Version = "1.0",
+            Title = "Warehouse.WebAPI",
+            Description = "https://github.com/MrAsminaf/warehouse-pseudo-amazon-management-app"
+        };
+    };
+});
+
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseOpenApi();
+    app.UseSwaggerUi3();
+}
 
 // apply migrations
 using (var scope = app.Services.CreateScope())
