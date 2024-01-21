@@ -25,7 +25,14 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
     }
 
+    /// <summary>
+    /// Creates a new client record in the system
+    /// </summary>
+    /// <response code="200">If a client was successfully created</response>
+    /// <response code="400">If an exception occured</response>
     [HttpPost("signup")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SignUp(SignUpModel model)
     {
         try
@@ -49,7 +56,15 @@ public class AuthController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Returns a JWT bearer token for the user
+    /// </summary>
+    /// <returns>JWT bearer token</returns>
+    /// <response code="200">Returns a JWT bearer token</response>
+    /// <response code="400">If email or password is incorrect or an exception occured</response>
     [HttpPost("signin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SignIn(SignInModel model)
     {
         try

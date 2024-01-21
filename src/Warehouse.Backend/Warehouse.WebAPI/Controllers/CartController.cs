@@ -20,45 +20,71 @@ public class CartController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Returns a cart by its ID.
+    /// </summary>
+    /// <response code="200">Returns the cart</response>
+    /// <response code="204">If no such cart exists</response>
+    /// <response code="400">If exception occurred</response>
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Cart>> GetCartById(int id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ReturnCartModel>> GetCartById(int id)
     {
         try
         {
             var cart = await _dbContext.Carts.Include(c => c.Products)
                 .FirstOrDefaultAsync(x => x.Id == id);
-
-            return cart;
+            var cartModel = _mapper.Map<ReturnCartModel>(cart);
+                
+            return Ok(cartModel);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             
-            return NotFound();
+            return BadRequest();
         }
     }
     
+    /// <summary>
+    /// Creates a cart.
+    /// </summary>
+    /// <returns>A newly created cart</returns>
+    /// <response code="201">Returns the newly created item</response>
+    /// <response code="400">If exception occurred</response>
     [HttpPost]
-    public async Task<ActionResult<Cart>> CreateCart(CreateCartModel model)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ReturnCartModel>> CreateCart(CreateCartModel model)
     {
         try
         {
             var mappedCart = _mapper.Map<Cart>(model);
             var createdCart = await _dbContext.Carts.AddAsync(mappedCart);
             await _dbContext.SaveChangesAsync();
+            var cartModel = _mapper.Map<ReturnCartModel>(createdCart.Entity);
 
             return CreatedAtAction(nameof(GetCartById), new { createdCart?.Entity?.Id }, 
-                createdCart?.Entity);
+                cartModel);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             
-            return NotFound();
+            return BadRequest();
         }
     }
 
+    /// <summary>
+    /// Add a product with productId to cart with cartId.
+    /// </summary>
+    /// <response code="200">If product was successfully added</response>
+    /// <response code="400">If no cart or product was found or an exception occurred</response>
     [HttpPost("{cartId:int}/products/{productId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddProductToCartById(int cartId, int productId)
     {
         try
@@ -87,11 +113,18 @@ public class CartController : ControllerBase
         {
             Console.WriteLine(e);
             
-            return NotFound();
+            return BadRequest();
         }
     }
     
-    [HttpDelete]
+    /// <summary>
+    /// Deletes a whole cart by its ID.
+    /// </summary>
+    /// <response code="204">If cart was successfully deleted</response>
+    /// <response code="400">If no such cart exists or an exception occurred</response>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteCart(int id)
     {
         try
@@ -112,11 +145,18 @@ public class CartController : ControllerBase
         {
             Console.WriteLine(e);
             
-            return NotFound();
+            return BadRequest();
         }
     }
     
+    /// <summary>
+    /// Deletes a product with productId from cart with cartId.
+    /// </summary>
+    /// <response code="204">If product was successfully deleted</response>
+    /// <response code="400">If no such cart or product exists or an exception occurred</response>
     [HttpDelete("{cartId:int}/products/{productId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteProductFromCartById(int cartId, int productId)
     {
         try
@@ -139,13 +179,13 @@ public class CartController : ControllerBase
             cart.Products.Remove(productToDelete);
             await _dbContext.SaveChangesAsync();
 
-            return Ok();
+            return NoContent();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             
-            return NotFound();
+            return BadRequest();
         }
     }
 }

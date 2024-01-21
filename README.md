@@ -11,3 +11,16 @@ You need to fetch latest postgres image, build the WebAPI image and run the Post
     docker compose up
 
 By default, the API listens to the :5276 port
+
+## Swagger
+
+You can access the swagger page by going to the
+
+    http://localhost:5276/swagger
+
+## Updating the database schema
+
+In order to update the PostgreSQL database with code-first approach, run these commands
+
+    dotnet ef migrations add MigrationName --project Warehouse.Infrastructure --startup-project Warehouse.WebAPI
+    dotnet ef database update --project Warehouse.Infrastructure --startup-project Warehouse.WebAPI
