@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Warehouse.Application.Models;
@@ -102,9 +103,68 @@ public class OrdersController : ControllerBase
         }
     }
     
-    // assign and de-assign worker from order
+    /// <summary>
+    /// Modifies an order found by ID. Data must be supplied using JSON patch format
+    /// </summary>
+    /// <response code="200">If order was successfully modified</response>
+    /// <response code="400">If JSON patch has errors or an exception occurred</response>
+    [HttpPatch("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> Patch(int id, [FromBody]JsonPatchDocument<Order> model)
+    {
+        try
+        {
+            var entityToUpdate = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entityToUpdate == null)
+            {
+                return BadRequest();
+            }
+        
+            model.ApplyTo(entityToUpdate);
+            _dbContext.Entry(entityToUpdate).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+
+            return BadRequest();
+        }
+    }
     
-    // change order status
-    
-    // delete an order
+    /// <summary>
+    /// Deletes an order found by ID.
+    /// </summary>
+    /// <response code="204">If order was successfully deleted</response>
+    /// <response code="400">If no such order exists or an exception occurred</response>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var orderToDelete = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (orderToDelete == null)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Orders.Remove(orderToDelete);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+
+            return BadRequest();
+        }
+    }
 }

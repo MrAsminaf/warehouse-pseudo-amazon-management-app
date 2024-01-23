@@ -105,28 +105,36 @@ public class ProductsController : ControllerBase
     }
     
     /// <summary>
-    /// Modifies a product found by ID.
+    /// Modifies a product found by ID. Data must be supplied using JSON patch format
     /// </summary>
-    /// <returns>A modified product</returns>
     /// <response code="200">If product was successfully modified</response>
-    /// <response code="400">If no such product exists or an exception occurred</response>
+    /// <response code="400">If JSON patch has errors or an exception occurred</response>
     [HttpPatch("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Patch(int id, [FromBody]JsonPatchDocument<Product> product)
     {
-        var entityToUpdate = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (entityToUpdate == null)
+        try
         {
+            var entityToUpdate = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entityToUpdate == null)
+            {
+                return BadRequest();
+            }
+        
+            product.ApplyTo(entityToUpdate);
+            _dbContext.Entry(entityToUpdate).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+
             return BadRequest();
         }
-        
-        product.ApplyTo(entityToUpdate);
-        _dbContext.Entry(entityToUpdate).State = EntityState.Modified;
-        await _dbContext.SaveChangesAsync();
-
-        return new ObjectResult(entityToUpdate);
     }
     
     /// <summary>
@@ -139,16 +147,25 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete(int id)
     {
-        var productToDelete = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (productToDelete == null)
+        try
         {
+            var productToDelete = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (productToDelete == null)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Products.Remove(productToDelete);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+
             return BadRequest();
         }
-
-        _dbContext.Products.Remove(productToDelete);
-        await _dbContext.SaveChangesAsync();
-
-        return NoContent();
     }
 }
