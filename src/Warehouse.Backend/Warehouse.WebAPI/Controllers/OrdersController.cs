@@ -10,34 +10,34 @@ namespace Warehouse.WebAPI.controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class OrdersController : ControllerBase
 {
     private readonly ApplicationContext _dbContext;
     private readonly IMapper _mapper;
 
-    public ProductsController(ApplicationContext dbContext, IMapper mapper)
+    public OrdersController(ApplicationContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
         _mapper = mapper;
     }
 
     /// <summary>
-    /// Returns a list of all products in the system
+    /// Returns a list of all orders in the system
     /// </summary>
-    /// <returns>A list of all products</returns>
-    /// <response code="200">Returns a list of all products</response>
+    /// <returns>A list of all orders</returns>
+    /// <response code="200">Returns a list of all orders</response>
     /// <response code="400">If exception occured</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<List<ReturnProductModel>> GetAllProducts()
+    public ActionResult<List<ReturnOrderModel>> GetAll()
     {
         try
         {
-            var products = _dbContext.Products.ToList();
-            var productsModel = _mapper.Map<List<ReturnProductModel>>(products);
-            
-            return Ok(productsModel);
+            var orders = _dbContext.Orders.ToList();
+            var ordersModel = _mapper.Map<List<ReturnOrderModel>>(orders);
+
+            return Ok(ordersModel);
         }
         catch (Exception e)
         {
@@ -48,23 +48,23 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Returns a product by its ID.
+    /// Returns an order by its ID.
     /// </summary>
-    /// <response code="200">Returns the product</response>
-    /// <response code="204">If no such product exists</response>
+    /// <response code="200">Returns the order</response>
+    /// <response code="204">If no such order exists</response>
     /// <response code="400">If exception occurred</response>
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ReturnProductModel>> GetById(int id)
+    public async Task<ActionResult<ReturnOrderModel>> GetById(int id)
     {
         try
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
-            var productModel = _mapper.Map<ReturnProductModel>(product);
+            var order = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
+            var orderModel = _mapper.Map<ReturnOrderModel>(order);
 
-            return Ok(productModel);
+            return Ok(orderModel);
         }
         catch (Exception e)
         {
@@ -73,28 +73,27 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
     }
-
+    
     /// <summary>
-    /// Creates a product.
+    /// Creates an order.
     /// </summary>
-    /// <returns>A newly created product</returns>
-    /// <response code="201">Returns the newly created item</response>
+    /// <returns>A newly created order</returns>
+    /// <response code="201">Returns the newly created order</response>
     /// <response code="404">If exception occurred</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ReturnProductModel>> CreateProduct(CreateProductModel model)
+    public async Task<ActionResult<ReturnOrderModel>> Create(CreateOrderModel model)
     {
         try
         {
-            var mappedProduct = _mapper.Map<Product>(model);
-            
-            var createdProduct = await _dbContext.Products.AddAsync(mappedProduct);
+            var mappedOrder = _mapper.Map<Order>(model);
+            var createdOrder = await _dbContext.Orders.AddAsync(mappedOrder);
             await _dbContext.SaveChangesAsync();
-            var productModel = _mapper.Map<ReturnProductModel>(createdProduct.Entity);
-
-            return CreatedAtAction(nameof(GetById), new { createdProduct?.Entity?.Id }, 
-                productModel);
+            var orderModel = _mapper.Map<ReturnOrderModel>(createdOrder.Entity);
+            
+            return CreatedAtAction(nameof(GetById), new { createdOrder?.Entity.Id }, 
+                orderModel);
         }
         catch (Exception e)
         {
@@ -105,25 +104,25 @@ public class ProductsController : ControllerBase
     }
     
     /// <summary>
-    /// Modifies a product found by ID. Data must be supplied using JSON patch format
+    /// Modifies an order found by ID. Data must be supplied using JSON patch format
     /// </summary>
-    /// <response code="200">If product was successfully modified</response>
+    /// <response code="200">If order was successfully modified</response>
     /// <response code="400">If JSON patch has errors or an exception occurred</response>
     [HttpPatch("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Patch(int id, [FromBody]JsonPatchDocument<Product> product)
+    public async Task<ActionResult> Patch(int id, [FromBody]JsonPatchDocument<Order> model)
     {
         try
         {
-            var entityToUpdate = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+            var entityToUpdate = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
 
             if (entityToUpdate == null)
             {
                 return BadRequest();
             }
         
-            product.ApplyTo(entityToUpdate);
+            model.ApplyTo(entityToUpdate);
             _dbContext.Entry(entityToUpdate).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
 
@@ -138,10 +137,10 @@ public class ProductsController : ControllerBase
     }
     
     /// <summary>
-    /// Deletes a product found by ID.
+    /// Deletes an order found by ID.
     /// </summary>
-    /// <response code="204">If product was successfully deleted</response>
-    /// <response code="400">If no such product exists or an exception occurred</response>
+    /// <response code="204">If order was successfully deleted</response>
+    /// <response code="400">If no such order exists or an exception occurred</response>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -149,14 +148,14 @@ public class ProductsController : ControllerBase
     {
         try
         {
-            var productToDelete = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+            var orderToDelete = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (productToDelete == null)
+            if (orderToDelete == null)
             {
                 return BadRequest();
             }
 
-            _dbContext.Products.Remove(productToDelete);
+            _dbContext.Orders.Remove(orderToDelete);
             await _dbContext.SaveChangesAsync();
 
             return NoContent();

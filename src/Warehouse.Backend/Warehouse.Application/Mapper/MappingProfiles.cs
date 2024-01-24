@@ -13,5 +13,7 @@ public class MappingProfiles : Profile
         CreateMap<SignUpModel, Client>();
         CreateMap<Product, ReturnProductModel>();
         CreateMap<Cart, ReturnCartModel>();
+        CreateMap<Order, ReturnOrderModel>();
+        CreateMap<CreateOrderModel, Order>();
     }
 }
