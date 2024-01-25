@@ -15,5 +15,6 @@ public class MappingProfiles : Profile
         CreateMap<Cart, ReturnCartModel>();
         CreateMap<Order, ReturnOrderModel>();
         CreateMap<CreateOrderModel, Order>();
+        CreateMap<InternalSignUpModel, Worker>();
     }
 }
