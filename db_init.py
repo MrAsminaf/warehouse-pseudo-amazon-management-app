@@ -5,7 +5,7 @@ conn = psycopg2.connect(
     host = 'localhost',
     database = 'factory',
     user = 'postgres',
-    password = 'password',
+    password = 'bekara',
     port ='5432'
 )
 
@@ -58,11 +58,12 @@ products_table_init = '''
 
 carts_table_init = '''
     CREATE TABLE Carts(
-        chart_id bigserial,
+        cart_id bigserial,
         product_id bigserial REFERENCES Products (product_id),
         amount SMALLINT NOT NULL,
         client_id bigserial REFERENCES Clients (client_id),
-        PRIMARY KEY(chart_id, product_id)
+        status VARCHAR(20) NOT NULL,
+        PRIMARY KEY(cart_id, product_id)
     )   
 '''
 
@@ -94,5 +95,5 @@ def drop_starter_db():
     cur.close()
     conn.close()
 
-# create_starter_db()
+create_starter_db()
 # drop_starter_db()
